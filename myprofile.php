@@ -20,6 +20,7 @@ $address=$_POST['address'];
 $city=$_POST['city']; 
 $country=$_POST['country']; 
 $mobileno=$_POST['mobileno']; 
+$permisson=$_POST['permission'];
 $sql="update tblemployees set FirstName=:fname,LastName=:lname,Gender=:gender,Dob=:dob,Department=:department,Address=:address,City=:city,Country=:country,Phonenumber=:mobileno where EmailId=:eid";
 $query = $dbh->prepare($sql);
 $query->bindParam(':fname',$fname,PDO::PARAM_STR);
@@ -32,6 +33,7 @@ $query->bindParam(':city',$city,PDO::PARAM_STR);
 $query->bindParam(':country',$country,PDO::PARAM_STR);
 $query->bindParam(':mobileno',$mobileno,PDO::PARAM_STR);
 $query->bindParam(':eid',$eid,PDO::PARAM_STR);
+$query->bindParam(':permission',$permission,PDO::PARAM_STR);
 $query->execute();
 $msg="Employee record updated Successfully";
 }
@@ -164,7 +166,11 @@ foreach($results as $result)
 <div class="input-field col m6 s12">
 <label for="pos">Position</label>
 <input id="pos" name="pos" type="text" value="<?php echo htmlentities($result->Position);?>"  disabled='true'>
- </div>                                            
+ </div> 
+ <div class="input-field col m6 s12">
+<label for="permission">User Permission</label>
+<input id="permission" name="permission" type="text" value="<?php echo htmlentities($result->Permission);?>"  disabled='true'>
+ </div>                                           
 <?php }}?>
                                                         
 <div class="input-field col s12">

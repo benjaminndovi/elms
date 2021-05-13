@@ -3,45 +3,74 @@ session_start();
 error_reporting(0);
 include('includes/config.php');
 if(strlen($_SESSION['emplogin'])==0)
-    {   
-header('location:index.php');
+{
+    header('location:index.php');
 }
 else{
-if(isset($_POST['apply']))
-{
-$empid=$_SESSION['eid'];
- $leavetype=$_POST['leavetype'];
-$fromdate=$_POST['fromdate'];  
-$todate=$_POST['todate'];
-$description=$_POST['description'];  
-$status=0;
-$isread=0;
-if($fromdate > $todate){
-                $error=" ToDate should be greater than FromDate ";
-           }
-$sql="INSERT INTO tblleaves(LeaveType,ToDate,FromDate,Description,Status,IsRead,empid) VALUES(:leavetype,:fromdate,:todate,:description,:status,:isread,:empid)";
-$query = $dbh->prepare($sql);
-$query->bindParam(':leavetype',$leavetype,PDO::PARAM_STR);
-$query->bindParam(':todate',$fromdate,PDO::PARAM_STR);
-$query->bindParam(':fromdate',$todate,PDO::PARAM_STR);
-$query->bindParam(':description',$description,PDO::PARAM_STR);
-$query->bindParam(':status',$status,PDO::PARAM_STR);
-$query->bindParam(':isread',$isread,PDO::PARAM_STR);
-$query->bindParam(':empid',$empid,PDO::PARAM_STR);
-$query->execute();
-$lastInsertId = $dbh->lastInsertId();
-if($lastInsertId)
-{
-$msg="Leave applied successfully";
-header("location: leavehistory.php");
-}
-else 
-{
-$error="Something went wrong. Please try again";
-}
-
-}
-
+    if(isset($_POST['apply']))
+    {
+        $empid=$_SESSION['eid'];
+        $leavetype=$_POST['leavetype'];
+        $fromdate=$_POST['fromdate'];
+        $todate=$_POST['todate'];
+        $numdays=$_POST['numdays'];
+        $description=$_POST['description'];
+        $status=0;
+        $isread=0;
+        $Hr_status=0;
+        $Hr_isread=0;
+        if($fromdate > $todate){
+            $error=" ToDate should be greater than FromDate ";
+        }else{
+            //check if there is another leave within the same time
+            $eid=$_SESSION['eid'];
+            $sql = "SELECT * from tblleaves where empid=:eid and FromDate>='".$fromdate."' and ToDate<='".$todate."'";
+            $query = $dbh -> prepare($sql);
+            $query->bindParam(':eid',$eid,PDO::PARAM_STR);
+            $query->execute();
+            $results=$query->fetchAll(PDO::FETCH_OBJ);
+            $cnt=1;
+            if($query->rowCount() > 0)
+            {
+                foreach($results as $result)
+                {           
+                    $error=" You already have another leave scheduled within the selected dates. Description:".$result->Description." From:".$result->FromDate." To:".$result->ToDate;
+                }
+            } else{
+            //done checking
+            //Checking number of days
+            
+                
+                
+                
+                
+              //Done checking  
+        $sql="INSERT INTO tblleaves(LeaveType,ToDate,FromDate,Description,Status,IsRead,Hr_Status,hr_IsRead,empid) VALUES(:leavetype,:fromdate,:todate,:description,:status,:isread,'".$Hr_status."','".$Hr_isread."',:empid)";
+        $query = $dbh->prepare($sql);
+        $query->bindParam(':leavetype',$leavetype,PDO::PARAM_STR);
+        $query->bindParam(':todate',$fromdate,PDO::PARAM_STR);
+        $query->bindParam(':fromdate',$todate,PDO::PARAM_STR);
+        $query->bindParam(':description',$description,PDO::PARAM_STR);
+        $query->bindParam(':status',$status,PDO::PARAM_STR);
+        $query->bindParam(':isread',$isread,PDO::PARAM_STR);
+        $query->bindParam(':empid',$empid,PDO::PARAM_STR);
+        $query->execute();
+        $lastInsertId = $dbh->lastInsertId();
+        if($lastInsertId)
+        {
+            //Update employee table with the number of days
+           
+            //done updating
+            $msg="Leave applied successfully";
+            header("location: leavehistory.php");
+        }
+        else
+        {
+            $error="Something went wrong. Please try again";
+        }
+        
+            }}}
+    
     ?>
 
 <!DOCTYPE html>
@@ -120,14 +149,31 @@ $cnt=1;
 if($query->rowCount() > 0)
 {
 foreach($results as $result)
-{   ?>                                            
+{  
+    
+    $gender = $_SESSION['gender'];
+    if ($gender=='Male' && $result->LeaveType=='Maternity'){
+        echo "<option disabled>Maternity not allowed</option>";
+    }
+    else if($gender =='Female' && $result->LeaveType=='Paternity'){
+        echo "<option disabled>Paternity not allowed</option>";
+    }else{
+    ?>                                            
 <option value="<?php echo htmlentities($result->LeaveType);?>"><?php echo htmlentities($result->LeaveType);?></option>
-<?php }} ?>
+<?php }}} ?>
 </select>
 </div>
+<div id="reserve_form">
 
+    <div id="pickup_date"><p><label class="form">From Date:</label><input type="date" class="textbox" id="pick_date" name="fromdate" onchange="cal()"</p></div>
 
-<div class="input-field col m6 s12">
+    <div id="dropoff_date"><p><label class="form">To Date:</label><input type="date" class="textbox" id="drop_date" name="todate" onchange="cal()"/></p></div>
+
+    <div id="numdays"><label class="form">Number of days:</label><input type="text" class="textbox" id="numdays2" name="numdays" readonly/></div>
+
+    </div>
+
+<!--  <div class="input-field col m6 s12">
 <label for="fromdate">From  Date</label>
 <input placeholder="" id="mask1" name="fromdate" class="masked" type="date" required>
 </div>
@@ -136,11 +182,16 @@ foreach($results as $result)
 <input placeholder="" id="mask1" name="todate" class="masked" type="date" required>
 </div>
 <div class="input-field col m12 s12">
+<label for="birthdate">Number of Days Requesting</label> 
+<input type="text" id="textarea1" name="description" length="3" readonly></input>   
+</div> -->
+<div class="input-field col m12 s12">
 <label for="birthdate">Description</label>    
 
 <textarea id="textarea1" name="description" class="materialize-textarea" length="500" required></textarea>
 </div>
 </div>
+
       <button type="submit" name="apply" id="apply" class="waves-effect waves-light btn indigo m-b-xs">Apply</button>                                             
 
                                                 </div>
@@ -160,6 +211,7 @@ foreach($results as $result)
         <div class="left-sidebar-hover"></div>
         
         <!-- Javascripts -->
+        <script src="assets/js/date.js"></script>
         <script src="assets/plugins/jquery/jquery-2.2.0.min.js"></script>
         <script src="assets/plugins/materialize/js/materialize.min.js"></script>
         <script src="assets/plugins/material-preloader/js/materialPreloader.min.js"></script>

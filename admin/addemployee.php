@@ -14,30 +14,28 @@ $fname=$_POST['firstName'];
 $lname=$_POST['lastName'];   
 $email=$_POST['email']; 
 $password=md5($_POST['password']); 
+$permission=($_POST['permission']);
 $gender=$_POST['gender']; 
 $dob=$_POST['dob']; 
 $department=$_POST['department']; 
 $position=$_POST['position'];
- 
-
 $mobileno=$_POST['mobileno']; 
 $status=1;
 
-$sql="INSERT INTO tblemployees(EmpId,FirstName,LastName,EmailId,Password,Gender,Dob,Department,Phonenumber,Status, Position) VALUES(:empid,:fname,:lname,:email,:password,:gender,:dob,:department,:mobileno,:status,:position)";
+$sql="INSERT INTO tblemployees(EmpId,FirstName,LastName,EmailId,Password,Permission,Gender,Dob,Department,Phonenumber,Status,Position) VALUES(:empid,:fname,:lname,:email,:password,:permission,:gender,:dob,:department,:mobileno,:status,:position)";
 $query = $dbh->prepare($sql);
 $query->bindParam(':empid',$empid,PDO::PARAM_STR);
 $query->bindParam(':fname',$fname,PDO::PARAM_STR);
 $query->bindParam(':lname',$lname,PDO::PARAM_STR);
 $query->bindParam(':email',$email,PDO::PARAM_STR);
 $query->bindParam(':password',$password,PDO::PARAM_STR);
+$query->bindParam(':permission',$permission,PDO::PARAM_STR);
 $query->bindParam(':gender',$gender,PDO::PARAM_STR);
 $query->bindParam(':dob',$dob,PDO::PARAM_STR);
 $query->bindParam(':department',$department,PDO::PARAM_STR);
 $query->bindParam(':mobileno',$mobileno,PDO::PARAM_STR);
 $query->bindParam(':status',$status,PDO::PARAM_STR);
 $query->bindParam(':position',$position,PDO::PARAM_STR);
-
-
 
 $query->execute();
 $lastInsertId = $dbh->lastInsertId();
@@ -259,6 +257,14 @@ foreach($results as $result)
 <label for="confirm">Confirm password</label>
 <input id="confirm" name="confirmpassword" type="password" autocomplete="off" required>
 </div>
+<div class="input-field col s12">
+<select  name="permission" autocomplete="off">
+<option value="">User Type...</option>                                          
+<option value="3">User (Ordinary)</option>
+<option value="2">Supervisor (Approver)</option>
+<option value="1">HR (Approver)</option>
+</div>
+</select>
                                                                                                         
 <div class="input-field m12 col s12">
 <button type="submit" name="add" onclick="return valid();" id="add" class="waves-effect waves-light btn indigo m-b-xs">SAVE</button>

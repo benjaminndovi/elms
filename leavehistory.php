@@ -75,15 +75,17 @@ else{
                                             <th>To</th>
                                              <th>Description</th>
                                              <th width="120">Posting Date</th>
-                                            <th width="200">Admin Remak</th>
-                                            <th>Status</th>
+                                            <th width="200">Supervisor Remark</th>
+                                            <th>Supervisor Status</th>
+                                            <th width="200">HR Remark</th>
+                                            <th>HR Status</th>
                                         </tr>
                                     </thead>
                                  
                                     <tbody>
 <?php 
 $eid=$_SESSION['eid'];
-$sql = "SELECT LeaveType,FromDate,ToDate,Description,PostingDate,AdminRemarkDate,AdminRemark,Status from tblleaves where empid=:eid";
+$sql = "SELECT LeaveType,FromDate,ToDate,Description,PostingDate,AdminRemarkDate,AdminRemark,Status,Hr_RemarkDate,Hr_Remark,Hr_Status from tblleaves where empid=:eid";
 $query = $dbh -> prepare($sql);
 $query->bindParam(':eid',$eid,PDO::PARAM_STR);
 $query->execute();
@@ -117,6 +119,29 @@ if($stats==1){
                                                  <?php } if($stats==2)  { ?>
                                                 <span style="color: red">Not Approved</span>
                                                  <?php } if($stats==0)  { ?>
+ <span style="color: blue">waiting for approval</span>
+ <?php } ?>
+
+                                             </td>
+                                             
+                                            
+                                            <td><?php if($result->Hr_Remark=="")
+                                            {
+echo htmlentities('waiting for approval');
+                                            } else
+{
+
+ echo htmlentities(($result->Hr_Remark)." "."at"." ".$result->Hr_RemarkDate);
+}
+
+                                            ?></td>
+                                                                                 <td><?php $hrstats=$result->Hr_Status;
+if($hrstats==1){
+                                             ?>
+                                                 <span style="color: green">Approved</span>
+                                                 <?php } if($hrstats==2)  { ?>
+                                                <span style="color: red">Not Approved</span>
+                                                 <?php } if($hrstats==0)  { ?>
  <span style="color: blue">waiting for approval</span>
  <?php } ?>
 

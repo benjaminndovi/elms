@@ -8,7 +8,7 @@ if(isset($_POST['employeeSignIn']))
 {
 $uname=$_POST['username'];
 $password=md5($_POST['password']);
-$sql ="SELECT EmailId,Password,Status,id FROM tblemployees WHERE EmailId=:uname and Password=:password";
+$sql ="SELECT EmailId,Password,Permission,Status,id,Department,Gender FROM tblemployees WHERE EmailId=:uname and Password=:password";
 $query= $dbh -> prepare($sql);
 $query-> bindParam(':uname', $uname, PDO::PARAM_STR);
 $query-> bindParam(':password', $password, PDO::PARAM_STR);
@@ -18,15 +18,42 @@ if($query->rowCount() > 0)
 {
  foreach ($results as $result) {
     $status=$result->Status;
+    $i=$result->Permission;
+    $dept=$result->Department;
     $_SESSION['eid']=$result->id;
+    $_SESSION['gender']=$result->Gender;
+    
+  
   }
 if($status==0)
 {
 $msg="Your account is Inactive. Please contact admin";
 } else{
 $_SESSION['emplogin']=$_POST['username'];
+
 	//echo "<script type='text/javascript'> document.location = 'myprofile.php'; </script>";
-header("location: leavehistory.php");
+//permission type login
+switch ($i) {
+    case 3:
+        header("location: leavehistory.php");
+        break;
+    case 2:  
+        $_SESSION['alogin']=$_POST['username'];
+        $_SESSION['dept']=$dept;
+        header ("location: approval/dashboard.php");
+        
+        break;
+    case 1:
+        $_SESSION['alogin']=$_POST['username'];
+        $_SESSION['dept']=$dept;
+        header ("location: hr_approval/dashboard.php");
+        
+        break;
+    default:
+        echo "<script>alert('Your account is inactive or does not have permissions');</script>";
+}
+
+
 } }
 
 else{
@@ -201,8 +228,8 @@ header("location: admin/dashboard.php");
 								}
 							}
 					   
-					   ?>"><a class="waves-effect waves-grey" href="index.php?goto=emp"><i class="material-icons"></i>Employee Login</a></li>
-                    <li class="no-padding"><a class="waves-effect waves-grey" href="forgot-password.php"><i class="material-icons"></i>Emp Password Recovery</a></li>
+					   ?>"><a class="waves-effect waves-grey" href="index.php?goto=emp"><i class="material-icons"></i>Login</a></li>
+                    <li class="no-padding"><a class="waves-effect waves-grey" href="forgot-password.php"><i class="material-icons"></i>Password Recovery</a></li>
 
                        <li class="no-padding 
 					   <?php

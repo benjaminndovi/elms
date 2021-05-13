@@ -17,7 +17,8 @@ $dob=$_POST['dob'];
 $department=$_POST['department']; 
 $mobileno=$_POST['mobileno']; 
 $pos = $_POST['position'];
-$sql="update tblemployees set FirstName=:fname,LastName=:lname,Gender=:gender,Dob=:dob,Department=:department,Phonenumber=:mobileno, Position=:pos where id=:eid";
+$permission = $_POST['permission'];
+$sql="update tblemployees set FirstName=:fname,LastName=:lname,Gender=:gender,Dob=:dob,Department=:department,Phonenumber=:mobileno, Position=:pos, Permission=:permission where id=:eid";
 $query = $dbh->prepare($sql);
 $query->bindParam(':fname',$fname,PDO::PARAM_STR);
 $query->bindParam(':lname',$lname,PDO::PARAM_STR);
@@ -25,7 +26,7 @@ $query->bindParam(':gender',$gender,PDO::PARAM_STR);
 $query->bindParam(':dob',$dob,PDO::PARAM_STR);
 $query->bindParam(':department',$department,PDO::PARAM_STR);
 $query->bindParam(':pos',$pos,PDO::PARAM_STR);
-
+$query->bindParam(':permsision',$permission,PDO::PARAM_STR);
 $query->bindParam(':mobileno',$mobileno,PDO::PARAM_STR);
 $query->bindParam(':eid',$eid,PDO::PARAM_STR);
 $query->execute();
@@ -135,6 +136,23 @@ foreach($results as $result)
 <span id="emailid-availability" style="font-size:12px;"></span> 
 </div>
 
+<div class="input-field col s12">
+<select  name="permission" type="text" autocomplete="off">
+<option  value="<?php echo htmlentities($result->Permission);?>"><?php $user_type = htmlentities($result->Permission);
+if ($user_type==3){
+    echo "User Ordinary";
+}else if ($user_type==2){
+    echo "Supervisor (Approver)";
+}else{
+    echo "HR (Approver)";
+}
+?></option>
+<option value="3">User (Ordinary)</option>
+<option value="2">Supervisor (Approver)</option>
+<option value="1">HR (Approver)</option>
+</select>
+</div>
+
 </div>
 </div>
                                                     
@@ -151,10 +169,10 @@ foreach($results as $result)
 
 <div class="input-field col m12 s12">
 <label for="birthdate">Date of Birth</label> <!--modify the place holder-->
-<input id="birthdate" name="dob"  class="datepicker" value="<?php echo htmlentities($result->Dob);?>" >
+<input id="birthdate" name="dob" type="text" class="datepicker" value="<?php echo htmlentities($result->Dob);?>" >
 </div>
 
-                                                    
+                                                   
 
 <div class="input-field col m6 s12">
 <select  name="department" autocomplete="off">
